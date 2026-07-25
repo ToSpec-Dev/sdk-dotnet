@@ -1,0 +1,18 @@
+# .NET build output
+bin/
+obj/
+artifacts/
+
+# BenchmarkDotNet artifacts
+BenchmarkDotNet.Artifacts/
+
+# IDE / OS
+.vs/
+.idea/
+*.user
+*.swp
+.DS_Store
+
+# The vendored ToSpec.Redact package under local-packages/ is intentionally
+# committed (self-contained restore until the package ships to nuget.org), so
+# *.nupkg is NOT ignored here — matching the platform monorepo's posture.

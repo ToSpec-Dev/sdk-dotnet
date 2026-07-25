@@ -1,0 +1,32 @@
+<Project>
+
+  <!-- Central package management. The runtime dependency budget for ToSpec.Sdk is
+       exactly ONE third-party package: ToSpec.Redact (the redaction engine — the
+       redaction-before-transmission contract). Everything else the SDK needs
+       (System.Threading.Channels, System.Text.Json, System.Security.Cryptography,
+       System.IO.Compression, the ASP.NET Core framework reference) ships in the BCL
+       / shared framework. Test and benchmark tooling is dev-only. -->
+
+  <PropertyGroup>
+    <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Runtime (the one third-party dependency) -->
+    <PackageVersion Include="ToSpec.Redact" Version="1.0.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Benchmarks (dev-only) -->
+    <PackageVersion Include="BenchmarkDotNet" Version="0.15.4" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Tests (dev-only) -->
+    <PackageVersion Include="Microsoft.AspNetCore.TestHost" Version="10.0.9" />
+    <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="18.7.0" />
+    <PackageVersion Include="xunit.v3" Version="3.2.2" />
+    <PackageVersion Include="xunit.runner.visualstudio" Version="3.1.5" />
+  </ItemGroup>
+
+</Project>

@@ -1,0 +1,29 @@
+name: release
+on:
+  release:
+    types: [published]
+permissions:
+  contents: read
+  id-token: write
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - uses: actions/setup-dotnet@c2fa09f4bde5ebb9d1777cf28262a3eb3db3ced7 # v5.2.0
+        with:
+          global-json-file: global.json
+      - name: Verify release version
+        run: test "v$(sed -n 's:.*<Version>\(.*\)</Version>.*:\1:p' src/ToSpec.Sdk/ToSpec.Sdk.csproj)" = "$GITHUB_REF_NAME"
+      - run: dotnet test -c Release -p:ContinuousIntegrationBuild=true
+      - run: dotnet pack src/ToSpec.Sdk/ToSpec.Sdk.csproj -c Release --no-build -o artifacts -p:ContinuousIntegrationBuild=true
+      - name: Standalone package resolution
+        run: |
+          dotnet new web -n Consumer -o /tmp/tospec-consumer
+          mkdir /tmp/tospec-packages
+          cp artifacts/*.nupkg local-packages/*.nupkg /tmp/tospec-packages/
+          dotnet add /tmp/tospec-consumer/Consumer.csproj package ToSpec.Sdk --source /tmp/tospec-packages
+          dotnet build /tmp/tospec-consumer/Consumer.csproj
+      - run: dotnet nuget push artifacts/*.nupkg --api-key "$NUGET_API_KEY" --source https://api.nuget.org/v3/index.json --skip-duplicate
+        env:
+          NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}

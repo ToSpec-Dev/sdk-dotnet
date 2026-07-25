@@ -1,0 +1,61 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- ToSpec.Sdk — the open-source .NET production conformance SDK. ASP.NET Core
+       middleware that redacts request/response traffic locally (via ToSpec.Redact)
+       BEFORE transmission, then ships gzip-signed batches to the ToSpec ingest edge
+       off the request thread. Runs inside the customer's own process, so it is
+       Apache-2.0 and its source is auditable. One third-party runtime dependency:
+       ToSpec.Redact. The ASP.NET Core surface comes from the shared framework. -->
+
+  <PropertyGroup>
+    <RootNamespace>ToSpec.Sdk</RootNamespace>
+    <AssemblyName>ToSpec.Sdk</AssemblyName>
+
+    <!-- NuGet package metadata (public, Apache-2.0). -->
+    <IsPackable>true</IsPackable>
+    <PackageId>ToSpec.Sdk</PackageId>
+    <Version>1.0.2</Version>
+    <Authors>ToSpec</Authors>
+    <Company>ToSpec</Company>
+    <Description>Production conformance SDK for ASP.NET Core: app.UseToSpecConformance() locally redacts bounded request/response captures before transmission and ships gzip-signed batches without waiting for ToSpec network I/O on the request thread. One dependency: ToSpec.Redact.</Description>
+    <PackageTags>conformance;redaction;observability;api;middleware;aspnetcore;privacy;pii;security</PackageTags>
+    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+    <PackageProjectUrl>https://github.com/ToSpec-Dev/sdk-dotnet</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/ToSpec-Dev/sdk-dotnet</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- The redaction engine — the redaction-before-transmission contract, shared
+         verbatim with the ToSpec capture gateway. The only third-party runtime dep. -->
+    <PackageReference Include="ToSpec.Redact" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- ASP.NET Core middleware + hosted services, from the shared framework
+         (no NuGet dependency incurred). -->
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="../../README.md" Pack="true" PackagePath="\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- The test project exercises the internal pipeline components directly (the bounded
+         channel, the exchange redactor, the wire DTOs) for fast, deterministic guarantee
+         tests. -->
+    <InternalsVisibleTo Include="ToSpec.Sdk.Tests" />
+    <InternalsVisibleTo Include="ToSpec.Sdk.Benchmarks" />
+  </ItemGroup>
+
+  <Target Name="RequireCleanPackProvenance" BeforeTargets="GenerateNuspec" Condition="'$(AllowDirtyPack)' != 'true'">
+    <Exec Command="bash &quot;$(MSBuildProjectDirectory)/../../scripts/ensure-clean-pack.sh&quot;" />
+  </Target>
+
+</Project>
