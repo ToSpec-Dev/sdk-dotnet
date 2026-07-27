@@ -28,8 +28,9 @@ applies is the same engine the ToSpec gateway runs, published separately as
   backpressure and counts every drop. No unbounded buffering, ever.
 - **Zero user-visible failures.** Every fault — a timeout, a bad response, a redaction error —
   is swallowed to a counter and an optional logging hook. The SDK cannot break your API.
-- **Instant off switch.** A provider can disable capture per tenant from the ToSpec portal;
-  the SDK honors the kill switch within one config-poll interval.
+- **Instant off switch.** Capture can be disabled remotely per tenant, and the SDK honors
+  the kill switch within one config-poll interval — no deploy, no restart. Ask ToSpec to
+  flip it; there is no self-serve control for this yet.
 
 ## Install
 
@@ -64,7 +65,8 @@ app.UseToSpecConformance();   // place early — it observes the whole request/r
 app.Run();
 ```
 
-Your ingest key, redaction key, and ruleset come from the ToSpec provider portal. The SDK
+Your ingest key, redaction key, and ruleset are issued by ToSpec and provisioned against
+your API — ask, rather than looking for a screen in the portal. The SDK
 polls `GET /v1/sdk/config` for the ruleset, sampling, and kill switch, and POSTs gzip-signed
 batches to `POST /v1/ingest`. See [`ToSpec-Dev/sdk-protocol`](https://github.com/ToSpec-Dev/sdk-protocol)
 for the full wire contract.
